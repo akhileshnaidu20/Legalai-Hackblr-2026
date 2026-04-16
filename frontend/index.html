@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LegalAI — HackBLR 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0c;--surface:#141418;--surface2:#1c1c22;--border:#2a2a32;--text:#e8e6e3;--text2:#8a8a96;--accent:#c9a44a;--accent2:#a67c2e;--green:#4ade80;--red:#f87171;--blue:#60a5fa}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--surface)}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#000}
+.header h1{font-size:18px;font-weight:600}
+.header h1 span{color:var(--accent)}
+.badge{font-size:10px;font-weight:600;text-transform:uppercase;padding:3px 8px;border-radius:4px;letter-spacing:.5px;background:rgba(201,164,74,.15);color:var(--accent)}
+.main{display:flex;flex:1;overflow:hidden}
+.sidebar{width:280px;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;padding:16px;gap:12px;overflow-y:auto}
+.sidebar h3{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text2);font-weight:600;margin-bottom:4px}
+.source-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;transition:border-color .2s}
+.source-card:hover{border-color:var(--accent)}
+.source-card .tag{font-size:10px;padding:2px 6px;border-radius:3px;font-weight:600;display:inline-block;margin-bottom:4px}
+.tag-new{background:rgba(74,222,128,.15);color:var(--green)}
+.tag-old{background:rgba(138,138,150,.15);color:var(--text2)}
+.source-card p{color:var(--text2);font-size:12px;margin-top:4px;line-height:1.4}
+#sources-list .empty{color:var(--text2);font-size:13px;font-style:italic}
+.chat-area{flex:1;display:flex;flex-direction:column;background:var(--bg)}
+.messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
+.message{max-width:80%;animation:fadeIn .3s}
+.message.user{align-self:flex-end;background:var(--accent2);color:#000;padding:12px 16px;border-radius:16px 16px 4px 16px;font-weight:500}
+.message.assistant{align-self:flex-start;background:var(--surface);border:1px solid var(--border);padding:16px;border-radius:16px 16px 16px 4px;line-height:1.6;white-space:pre-wrap}
+.intent-badge{font-size:10px;font-weight:600;text-transform:uppercase;padding:2px 8px;border-radius:3px;margin-bottom:8px;display:inline-block;letter-spacing:.5px}
+.intent-legal_research{background:rgba(96,165,250,.15);color:var(--blue)}
+.intent-contract_analysis{background:rgba(248,113,113,.15);color:var(--red)}
+.intent-document_generation{background:rgba(74,222,128,.15);color:var(--green)}
+.typing{align-self:flex-start;background:var(--surface);border:1px solid var(--border);padding:16px;border-radius:16px;color:var(--text2)}
+.typing::after{content:'';display:inline-block;width:4px;height:16px;background:var(--accent);margin-left:4px;animation:blink 1s infinite;vertical-align:middle}
+.input-area{padding:16px 24px;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:8px;align-items:center}
+.input-area input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.input-area input:focus{border-color:var(--accent)}
+.input-area input::placeholder{color:var(--text2)}
+.btn{padding:10px 16px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--accent)}
+.btn-icon{width:42px;height:42px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-size:18px;transition:all .2s}
+.btn-icon:hover{border-color:var(--accent);color:var(--accent)}
+.upload-area{padding:8px 24px;border-top:1px solid var(--border);background:var(--surface);display:none}
+.upload-area.visible{display:flex;gap:8px;align-items:center}
+.upload-area input[type=file]{font-size:12px;color:var(--text2)}
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;gap:16px;padding:24px}
+.welcome h2{font-size:24px;font-weight:600}
+.welcome h2 span{color:var(--accent)}
+.welcome p{color:var(--text2);max-width:500px;line-height:1.6}
+.welcome-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center}
+.suggestion{padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s}
+.suggestion:hover{border-color:var(--accent);color:var(--text)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+@media(max-width:768px){.sidebar{display:none}.message{max-width:95%}}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="header-left">
+<div class="logo">LA</div>
+<h1>Legal<span>AI</span></h1>
+<span class="badge">HackBLR 2026</span>
+</div>
+<div class="header-right">
+<button class="btn btn-secondary" onclick="toggleUpload()">Upload Contract</button>
+<button class="btn btn-secondary" onclick="resetChat()">Reset</button>
+</div>
+</div>
+<div class="main">
+<div class="sidebar">
+<h3>Cited Sources</h3>
+<div id="sources-list"><p class="empty">Sources appear here when you ask a legal question</p></div>
+</div>
+<div class="chat-area">
+<div class="messages" id="messages">
+<div class="welcome" id="welcome">
+<div class="logo" style="width:56px;height:56px;font-size:24px;border-radius:14px">LA</div>
+<h2>Welcome to Legal<span>AI</span></h2>
+<p>Your AI-powered Indian legal assistant. Ask about any law, analyze contracts, or draft legal documents.</p>
+<p style="font-size:13px;color:var(--text2)">Covers IPC, BNS (new), CrPC, BNSS (new), Contract Act, Constitution, Consumer Protection & more.</p>
+<div class="welcome-actions">
+<div class="suggestion" onclick="askSuggestion(this)">What is Section 420 IPC under new BNS?</div>
+<div class="suggestion" onclick="askSuggestion(this)">Are non-compete clauses valid in India?</div>
+<div class="suggestion" onclick="askSuggestion(this)">How to file a consumer complaint?</div>
+<div class="suggestion" onclick="askSuggestion(this)">Draft a legal notice for unpaid rent</div>
+</div>
+</div>
+</div>
+<div class="upload-area" id="upload-area">
+<input type="file" id="contract-file" accept=".txt,.pdf,.doc,.docx">
+<button class="btn btn-primary" onclick="uploadContract()">Analyze</button>
+<button class="btn btn-secondary" onclick="toggleUpload()">Cancel</button>
+</div>
+<div class="input-area">
+<input type="text" id="user-input" placeholder="Ask a legal question..." onkeydown="if(event.key==='Enter')sendMessage()">
+<button class="btn-icon" onclick="sendMessage()" title="Send">&#10148;</button>
+</div>
+</div>
+</div>
+<script>
+const API_URL='http://localhost:8000';
+const messagesEl=document.getElementById('messages');
+const welcomeEl=document.getElementById('welcome');
+const inputEl=document.getElementById('user-input');
+const sourcesEl=document.getElementById('sources-list');
+function askSuggestion(el){inputEl.value=el.textContent;sendMessage()}
+function toggleUpload(){document.getElementById('upload-area').classList.toggle('visible')}
+async function sendMessage(){
+const msg=inputEl.value.trim();if(!msg)return;
+if(welcomeEl)welcomeEl.style.display='none';
+addMessage(msg,'user');inputEl.value='';
+const typ=document.createElement('div');typ.className='typing';typ.textContent='Thinking';messagesEl.appendChild(typ);messagesEl.scrollTop=messagesEl.scrollHeight;
+try{const res=await fetch(API_URL+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});const data=await res.json();typ.remove();addAssistantMessage(data)}
+catch(err){typ.remove();addMessage('Connection error. Make sure backend is running on localhost:8000','assistant')}}
+function addMessage(text,role){const div=document.createElement('div');div.className='message '+role;div.textContent=text;messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight}
+function addAssistantMessage(data){
+const div=document.createElement('div');div.className='message assistant';
+const badge=document.createElement('div');badge.className='intent-badge intent-'+data.intent;badge.textContent=data.intent.replace('_',' ');div.appendChild(badge);
+const text=document.createElement('div');text.style.marginTop='8px';text.textContent=data.response;div.appendChild(text);
+if(data.file_path){const fn=data.file_path.split('/').pop();const a=document.createElement('a');a.href=API_URL+'/download/'+fn;a.textContent='Download Document';a.style.cssText='display:inline-block;margin-top:12px;padding:8px 14px;background:var(--accent);color:#000;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px';div.appendChild(a)}
+if(data.disclaimer){const d=document.createElement('div');d.style.cssText='margin-top:12px;padding:8px 12px;background:rgba(248,113,113,.1);border-radius:6px;font-size:12px;color:var(--red)';d.textContent=data.disclaimer;div.appendChild(d)}
+messagesEl.appendChild(div);messagesEl.scrollTop=messagesEl.scrollHeight;updateSources(data.response)}
+function updateSources(resp){
+const secs=[...new Set((resp.match(/Section\s+\d+[A-Za-z]?/gi)||[]).slice(0,5))];
+const arts=[...new Set((resp.match(/Article\s+\d+[A-Za-z]?/gi)||[]).slice(0,3))];
+const acts=[...new Set((resp.match(/(IPC|BNS|CrPC|BNSS|BSA|Indian Contract Act|Consumer Protection Act|Constitution)/gi)||[]))];
+const refs=[...secs,...arts];if(!refs.length)return;
+sourcesEl.innerHTML='';
+refs.forEach(ref=>{const isNew=acts.some(a=>['BNS','BNSS','BSA'].includes(a.toUpperCase()));
+const c=document.createElement('div');c.className='source-card';
+c.innerHTML='<span class="tag '+(isNew?'tag-new':'tag-old')+'">'+(isNew?'New Law':'Cited')+'</span><strong>'+ref+'</strong><p>'+(acts.slice(0,2).join(', ')||'Indian Law')+'</p>';
+sourcesEl.appendChild(c)})}
+async function uploadContract(){
+const fi=document.getElementById('contract-file');if(!fi.files.length)return alert('Select a file');
+if(welcomeEl)welcomeEl.style.display='none';toggleUpload();
+addMessage('Analyzing uploaded contract...','user');
+const typ=document.createElement('div');typ.className='typing';typ.textContent='Analyzing';messagesEl.appendChild(typ);
+const fd=new FormData();fd.append('file',fi.files[0]);
+try{const res=await fetch(API_URL+'/analyze-contract',{method:'POST',body:fd});const data=await res.json();typ.remove();addAssistantMessage({intent:'contract_analysis',response:data.analysis,file_path:data.report_path,disclaimer:data.disclaimer})}
+catch(err){typ.remove();addMessage('Upload failed.','assistant')}}
+async function resetChat(){try{await fetch(API_URL+'/reset',{method:'POST'})}catch(e){}location.reload()}
+inputEl.focus();
+</script>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
+<script>
+window.vapiSDK.run({
+  apiKey: "[200~cd ~/hackblr-legal-ai",
+  assistant: "your-assistant-id-here",
+  config: {
+    position: "bottom-right",
+    offset: "40px",
+    width: "50px",
+    height: "50px",
+    idle: { color: "#c9a44a", type: "pill", title: "Voice Legal Help", subtitle: "Tap to speak" },
+    active: { color: "#4ade80", type: "pill", title: "Listening...", subtitle: "Speak your question" }
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
+<script>
+window.vapiSDK.run({
+  apiKey: "your-public-key-here",
+  assistant: "your-assistant-id-here",
+  config: {
+    position: "bottom-right",
+    offset: "40px",
+    width: "50px",
+    height: "50px",
+    idle: { color: "#c9a44a", type: "pill", title: "Voice Legal Help", subtitle: "Tap to speak" },
+    active: { color: "#4ade80", type: "pill", title: "Listening...", subtitle: "Speak your question" }
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js"></script>
+<script>
+window.vapiSDK.run({
+  apiKey: "f7d20d68-f518-4b9b-bdc9-90604ca91d62",
+  assistant: "5c2a3586-a349-4f4d-bfdc-6f5b6868fbfb",
+  config: {
+    position: "bottom-right",
+    offset: "40px",
+    width: "50px",
+    height: "50px",
+    idle: { color: "#c9a44a", type: "pill", title: "Voice Legal Help", subtitle: "Tap to speak" },
+    active: { color: "#4ade80", type: "pill", title: "Listening...", subtitle: "Speak your question" }
+  }
+});
+</script>
