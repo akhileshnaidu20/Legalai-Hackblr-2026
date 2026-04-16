@@ -1,0 +1,168 @@
+HackBLR 2026 Submission — Problem Statement 3: Voice AI Agent for Accessibility & Societal Impact
+A voice-first AI legal assistant that makes Indian law accessible to everyone — regardless of language, literacy or income.
+
+The Problem
+70% of Indians cannot access legal help. 
+Lawyers are expensive, courts are intimidating and legal language is impenetrable. Most people don't even know their basic rights.
+
+The Solution
+LegalAI is a multilingual voice + text legal assistant powered by:
+- 5 specialist AI agents running in parallel (Researcher, Practical Advisor, Law Advisor, Rights Specialist, Law & Order Specialist)
+- Synthesizer agent combining their analyses into one optimal answer
+- 8,000+ vector knowledge base sourced from credible open datasets
+- Voice interface in 5 Indian languages: Hindi, Kannada, Telugu, Tamil, Malayalam
+
+Architecture
+User (Voice/Text)
+↓
+Vapi (Voice Layer) → STT (Deepgram) → LLM → TTS (ElevenLabs)
+↓
+FastAPI Backend
+↓
+┌──────────────────────────────────────────┐
+│  LAYER 1: 5 Specialist Agents (parallel) │
+│  - Researcher (statutes & sections)      │
+│  - Practical Advisor (steps, costs)      │
+│  - Law Advisor (case strength)           │
+│  - Rights Specialist (legal rights)      │
+│  - Law & Order Specialist (FIR, bail)    │
+└──────────────────────────────────────────┘
+↓
+┌──────────────────────────────────────────┐
+│  LAYER 2: Synthesizer Agent              │
+│  Combines all 5 outputs into one answer  │
+└──────────────────────────────────────────┘
+↓
+RAG Context from Qdrant (8,000+ vectors)
+↓
+Response (with cited sources)
+
+
+
+Tech Stack
+- Voice: Vapi (Deepgram STT + ElevenLabs TTS)
+- LLM: Groq (llama-3.3-70b-versatile) with multi-model fallback
+- Vector DB: Qdrant Cloud
+- Embeddings: sentence-transformers/all-MiniLM-L6-v2 (local, no API limits)
+- Backend: FastAPI + Python
+- Frontend: Single-file HTML with Tailwind-style CSS
+
+Knowledge Base Sources (All Credible, Open License)
+1. IndicLegalQA — 10,000 QA pairs from Supreme Court judgments (Mendeley, CC BY 4.0)
+2. Indian Legal QA — Akshat Gupta dataset (Kaggle, CC BY-SA 4.0)
+3. Lawyer GPT India — nisaar (HuggingFace)
+4. Constitution of India Instructions — nisaar (HuggingFace)
+5. Indian Bare Acts — IPC, BNS, CrPC, BNSS, Contract Act, Constitution
+6. Multiple HuggingFace datasets for legal text coverage
+
+Total: 8,000+ vectors covering criminal law, civil law, constitutional law, family law, employment law, consumer rights, cyber crime and more.
+
+Key Features
+- Multi-Agent Legal Reasoning — 5 AI lawyers analyze every query in parallel
+- New Criminal Law Coverage — Cites both old (IPC/CrPC/Evidence Act) AND new (BNS/BNSS/BSA) sections that took effect on 1 July 2024
+- Multilingual — Hindi, Kannada, Telugu, Tamil, Malayalam + English
+- Voice + Text — Same backend powers both
+- Document Generation — Drafts legal notices as downloadable .docx files
+- Contract Analysis — Clause-by-clause risk scoring
+- Free Legal Aid Integration — Connects users to NALSA helpline (15100) and state legal services authorities
+
+Roadmap (Round 2 Features)
+- Emergency detection (domestic violence, cyber fraud, threats)
+- Legal case strength scoring (1-10 scale)
+- Evidence checklist generator
+- Legal cost estimator
+- State-wise legal aid finder
+- Dual-LLM resilience (Groq + Gemini failover)
+
+Project Structure
+hackblr-legal-ai/
+├── backend/
+│   └── app/
+│       ├── main.py                    # FastAPI server
+│       ├── agents/
+│       │   └── legal_agent.py         # 5-agent system + synthesizer
+│       └── tools/
+│           ├── legal_search.py        # Qdrant RAG search
+│           ├── contract_analyzer.py   # Contract analysis
+│           └── doc_generator.py       # Legal document generation
+├── frontend/
+│   └── index.html                     # Single-file frontend
+├── scripts/
+│   ├── step1_download_datasets.py
+│   ├── step2_process_data.py
+│   ├── step3_embed_and_upload.py
+│   └── step4_process_and_embed.py
+└── README.md
+
+Setup Instructions
+
+Prerequisites
+- Python 3.10+
+- Qdrant Cloud account (free tier)
+- Groq API key (free tier)
+- Vapi account 
+
+nstallation
+
+```bash
+# Clone the repo
+git clone https://github.com/akhileshnaidu20/legalai-hackblr-2026.git
+cd legalai-hackblr-2026
+
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install fastapi uvicorn python-dotenv groq qdrant-client sentence-transformers python-docx datasets
+
+# Create .env file
+cat > .env << EOF
+GROQ_API_KEY=your_groq_key_here
+QDRANT_URL=your_qdrant_url_here
+QDRANT_API_KEY=your_qdrant_key_here
+GOOGLE_API_KEY=your_gemini_key_here  # Optional, for fallback
+VAPI_API_KEY=your_vapi_key_here
+EOF
+
+# Run data pipeline (one-time setup)
+python scripts/step1_download_datasets.py
+python scripts/step2_process_data.py
+python scripts/step3_embed_and_upload.py
+python scripts/step4_process_and_embed.py
+```
+
+### Running the Application
+
+```bash
+# Terminal 1: Backend
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Terminal 2: Frontend
+cd frontend && python3 -m http.server 3000
+
+# Terminal 3: Ngrok (for Vapi voice integration)
+ngrok http 8000
+```
+
+Open http://localhost:3000 to use the application.
+
+## Demo
+
+[Add link to demo video here]
+
+## Team
+
+Team Techotron
+
+## License
+
+MIT License — Built for HackBLR 2026
+
+---
+
+**Disclaimer**: LegalAI provides AI-generated legal information for educational purposes. It is not a substitute for professional legal advice. For legal matters, consult a qualified lawyer or contact NALSA helpline 15100 for free legal aid.
+READMEEOF
+
+
+
